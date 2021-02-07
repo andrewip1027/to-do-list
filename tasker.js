@@ -1,113 +1,84 @@
-//THIS THE ANSWER 
-let tasker = {
-	construct: function() {
-		this.selectElements();
-		this.bindEvents();
-		this.scanTaskList();
-	},
-	//This Below only getting the Element from html, for javascript
-	selectElements: function() {
-		 //this.x = x 
-		this.taskInput = document.getElementById("taskInput"); //id="taskInput"
+var tasker = {
+    construct: function() {
+        this.selectElements();
+        this.bindEvents();
+    },
 
-		this.taskList = document.getElementById("tasksList"); //<ul id="tasksList"></ul>
-		this.taskListChildren = this.taskList.children; //used from the object: taskList(above)
-		
-		this.addButton = document.getElementById("addButton"); //<button id="addButton">
+  selectElements:function(){
+    this.errorMessage = document.getElementById('error');
+    this.taskInput = document.getElementById('input-task');
+    this.addButton = document.getElementById('add-task-btn');
+    this.taskList = document.getElementById('tasks');
+    this.taskListChildren = document.getElementById('tasks');
+  },
 
-		this.errorMessage = document.getElementById("error") //<div id="error"
-	},
-	//This Above only getting the Element from html, for javascript
+    buildTask: function() {
+  //a) taskListItem (Master of all var)  b)taskCheckBox
+  //c) taskValue  d)taskButton e)taskTrash
+      var taskListItem = document.createElement('li') //we made taskListItem variable
+      this.taskList.appendChild(taskListItem);
+//b) Checkbox    always create element first
+      var taskCheckBox = document.createElement('input');
+      taskCheckBox.setAttribute("type", "checkBox");
+      taskListItem.appendChild(taskCheckBox);
+//c) Taskvalue
+      var taskValue = document.createTextNode(this.taskInput.value);
+      taskListItem.appendChild(taskValue);
+// d) button
+      var taskButton = document.createElement('button');
+      taskListItem.appendChild(taskButton);
+//e) taskTrash      ONLY a icon
+      var taskTrash = document.createElement('i');
+      taskTrash.setAttribute("class", "fas fa-trash");
+      taskButton.appendChild(taskTrash);
+      taskButton.onclick = this.deleteButton.bind(this, taskListItem);
 
-	buildTask: function() {
-	let taskListItem, taskCheckbox, taskValue, taskButton, taskTrash;
-		taskListItem = document.createElement("li");  //creating li
-		//The setAttribute() method adds the specified attribute to an element, and gives it the specified value.
 
-		taskListItem.setAttribute("class", "task");
-		//checkbox
-		taskCheckbox = document.createElement("input");
-		taskCheckbox.setAttribute("type", "checkbox"); //"type" so you can type in button
-		//task value
-		taskValue = document.createTextNode(this.taskInput.value); //get from taskINp
-		//delete button
-		taskButton = document.createElement("button");
-		//trash icon
-		taskTrash = document.createElement("i");
-		taskTrash.setAttribute("class","fa fa-trash");
-		
-	//append elements to tasklist  || AppendChild means adding a child...a
-	//The Node.appendChild() method adds a node to the end of the list of children of a specified parent node. If the given child is a reference to an existing node in the document, appendChild() moves it from its current position to the new position 
-		//insert trash-Can icon into button
-		taskButton.appendChild(taskTrash);
-		//append taskValue and taskButton in taskListItem
-		taskListItem.appendChild(taskValue);
-		taskListItem.appendChild(taskButton);
-		//check Box
-		taskListItem.appendChild(taskCheckbox);
-		//add task to taskList Object 
-		this.taskList.appendChild(taskListItem);		
-	},
-	error: function() {
-		this.errorMessage.style.display = "block";
-	},
-	addTask: function() {
-		let taskValue = this.taskInput.value;
-		this.errorMessage.style.display = "none";
-		
-		if(taskValue === ""){
-			this.error();
-		}
-		else {
-			this.buildTask();
-			this.taskInput.value = "";
-			this.scanTaskList();
-		}
-	},
-	enterKey: function(event){
-		if (event.keyCode === 13 || event.which === 13 ){
-			this.addTask();
-		}
-	},
-	bindEvents: function(){
-		//add click event to button
-		this.addButton.onclick = this.addTask.bind(this);
 
-		//add enter key to task textbox
-		this.taskInput.onkeypress = this.enterKey.bind(this);
-	},
+      // TODO: add a whatever button to the task list item
+    },
 
-	scanTaskList: function() {
-		let taskListItem, checkBox, deleteButton;
+    // return true if there is an error with taskInput
+    checkError: function() {
+      return this.taskInput.value === "";
+    },
 
-		//loop through all list elements
-		for (i = 0; i < this.taskListChildren.length; i++){
-			taskListItem = this.taskListChildren[i];
-			//select checkbox and delete button
-			checkBox = taskListItem.getElementsByTagName("input")[0];
-			deleteButton = taskListItem.getElementsByTagName("button")[0];
+    error: function() {
+      // Task: make error message appear when the user hasn't typed anything
+      // inside placeholder
 
-			//bind onclick event to the checkbox
-			checkBox.onclick = this.completeTask.bind(this, taskListItem, checkBox);
+      // TODO: Check whether the user has typed anything
+      // TODO: make error message appear
+      if(this.checkError()){
+        this.errorMessage.style.display = "initial";
+      } else {
+      this.errorMessage.style.display = "none";
+      }
 
-			//add click event to the delete button
-			deleteButton.onclick = this.deleteTask.bind(this, i);
-		}
-	},
+    },
 
-	deleteTask: function(i) {
-		this.taskListChildren[i].remove();
-		this.scanTaskList();
-	},
-	completeTask: function(taskListItem, checkBox) {
-		if (checkBox.checked){
-			taskListItem.className = "task completed";
-		}
-		else {
-			this.incompleteTask(taskListItem);
-		}
-	},
-	incompleteTask: function(taskListItem){
-		taskListItem.className = "task";
-	}
-};
+    addTask: function(){
+      // Task: don't call this.buildTask() when there is an error
+
+      // TODO: check if there is no error
+      if(!this.checkError()){
+          // TODO: call this.buildTask()
+          this.buildTask();
+      }
+       this.error();
+       this.clearInput();
+    },
+
+
+      clearInput: function(){
+        document.getElementById('input-task').value = "";
+      },
+
+    bindEvents:function(){
+      this.addButton.onclick = this.addTask.bind(this);
+    },
+
+    deleteButton:function(taskListItem){
+      this.taskList.removeChild(taskListItem);
+    },
+}
